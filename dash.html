@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I-NOTES Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <h2>Notes</h2>
+    <button class="new-note" onclick="window.location.href='notes.html'">+ New Note</button>
+
+    <nav class="recent">
+      
+      <ul>
+        <li><a href="fav.html">Favourites</a></li>
+        <li><a href="transcribe.html">Transcribe</a></li>
+        <li><a href="audio.html">Audio Recording</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <header>
+       <div class="logo-container">
+      <div class="logo">I-NOTES</div>
+      <img src="cihelogo.png" alt="CIHE Background Logo" class="logo-background">
+      <img src="cihelogo.png" alt="CIHE Logo" class="main-logo"></div>
+
+      <div class="search-container">
+        <input type="text" placeholder="🔍 Search notes..." class="search-bar" aria-label="Search notes">
+      </div>
+
+      <div class="user">SS</div>
+    </header>
+
+    <section class="dashboard">
+      <h1>Dashboard</h1>
+
+      <div class="folders-section">
+        <div class="section-title">📁 Folders</div>
+        <div class="folders">
+          <button class="add-folder">+ Add folders</button>
+        </div>
+      </div>
+
+      <div class="favourites-section">
+        <h2>☆ Favourites <span class="view-all"><a href="fav.html">view all</a></span></h2>
+        <div class="favourite-note">What is big data?</div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-box">Total notes<br><span>3</span></div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
