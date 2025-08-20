@@ -1,0 +1,197 @@
+// Note.js — include on all pages (defer)
+document.addEventListener("DOMContentLoaded", () => {
+    /* =============== Data Layer (localStorage) =============== */
+    const LS_KEY = "inotes_notes";
+    const uid = () => crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random());
+    const getNotes = () => { try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; } catch { return []; } };
+    const setNotes = (arr) => localStorage.setItem(LS_KEY, JSON.stringify(arr));
+    const addNote = ({ title, body }) => {
+      const now = new Date().toISOString();
+      const note = { id: uid(), title, body, favorite: false, createdAt: now, updatedAt: now };
+      const all = getNotes(); all.unshift(note); setNotes(all); return note;
+    };
+    const toggleFavorite = (id) => { const all = getNotes(); const i = all.findIndex(n => n.id === id); if (i>=0){ all[i].favorite=!all[i].favorite; all[i].updatedAt=new Date().toISOString(); setNotes(all);} };
+    const deleteNote = (id) => { setNotes(getNotes().filter(n => n.id !== id)); };
+    const formatDate = (iso) => { try { return new Date(iso).toLocaleString(); } catch { return iso; } };
+    const escapeHtml = (s) => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  
+    /* ==================== Rendering helpers ==================== */
+    const makeCard = (note) => {
+      const div = document.createElement("div");
+      div.className = "note-card";
+      div.innerHTML = `
+        <h3>${note.title ? escapeHtml(note.title) : "(Untitled)"}</h3>
+        <p>${escapeHtml(note.body || "")}</p>
+        <div class="note-meta">Created: ${formatDate(note.createdAt)}</div>
+        <div class="note-actions-row">
+          <button class="note-btn ${note.favorite ? "primary" : ""}" data-action="fav">${note.favorite ? "★ Unfavourite" : "☆ Favourite"}</button>
+          <button class="note-btn warn" data-action="del">Delete</button>
+        </div>
+      `;
+      div.querySelector('[data-action="fav"]').addEventListener("click", () => { toggleFavorite(note.id); rerender(); });
+      div.querySelector('[data-action="del"]').addEventListener("click", () => { if (confirm("Delete this note?")) { deleteNote(note.id); rerender(); } });
+      return div;
+    };
+    const renderList = (container, notes) => {
+      if (!container) return;
+      container.innerHTML = "";
+      if (!notes.length) { container.innerHTML = `<div style="color:#777;">No notes found.</div>`; return; }
+      notes.forEach(n => container.appendChild(makeCard(n)));
+    };
+  
+    /* =================== Search helpers (URL) =================== */
+    const getQuery = () => {
+      const input = document.querySelector(".search-form-inline .search-input");
+      return input ? input.value.trim() : "";
+    };
+    const filterNotes = (arr, q) => {
+      if (!q) return arr;
+      const s = q.toLowerCase();
+      return arr.filter(n => (n.title && n.title.toLowerCase().includes(s)) || (n.body && n.body.toLowerCase().includes(s)));
+    };
+    const readQFromUrl = () => new URLSearchParams(location.search).get("q") || "";
+    const writeQToUrl = (q) => {
+      const url = new URL(location.href);
+      if (q) url.searchParams.set("q", q); else url.searchParams.delete("q");
+      history.replaceState({}, "", url.toString());
+    };
+  
+    /* ====================== Page wiring ====================== */
+    const notesList = document.getElementById("notes-list");
+    const favList = document.getElementById("favourites-list");
+    const saveBtn = document.getElementById("save-note");
+    const cancelBtn = document.getElementById("cancel-note");
+    const titleInput = document.getElementById("note-title");
+    const bodyInput = document.getElementById("note-area");
+  
+    // Search init
+    const searchForm = document.querySelector(".search-form-inline");
+    const searchInput = searchForm ? searchForm.querySelector(".search-input") : null;
+    if (searchForm && searchInput) {
+      const q0 = readQFromUrl(); if (q0 && !searchInput.value) searchInput.value = q0;
+      searchForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        writeQToUrl(getQuery());
+        rerender();
+      });
+    }
+  
+    // Save / cancel on New Note
+    if (saveBtn && titleInput && bodyInput) {
+      saveBtn.addEventListener("click", () => {
+        const title = titleInput.value.trim();
+        const body = bodyInput.value.trim();
+        if (!title && !body) { alert("Please enter a title or some content."); return; }
+        addNote({ title, body });
+        titleInput.value = ""; bodyInput.value = "";
+        window.location.href = "Dash.php";
+      });
+    }
+    if (cancelBtn) {
+      cancelBtn.addEventListener("click", () => {
+        if (titleInput) titleInput.value = "";
+        if (bodyInput) bodyInput.value = "";
+        window.location.href = "Dash.php";
+      });
+    }
+  
+    // Render based on page
+    function rerender() {
+      const all = getNotes();
+      const q = getQuery() || readQFromUrl();
+  
+      if (notesList) renderList(notesList, filterNotes(all, q));
+      if (favList) renderList(favList, filterNotes(all.filter(n => n.favorite), q));
+  
+      // Update dashboard total if present
+      const totalSpan = document.querySelector(".stat-box span");
+      if (totalSpan) totalSpan.textContent = String(all.length);
+    }
+    rerender();
+  
+    /* =================== Audio Recording =================== */
+    const recordBtn = document.getElementById("record-btn");
+    let mediaRecorder = null, audioChunks = [], currentStream = null;
+  
+    const getBestAudioMime = () => {
+      const c = ["audio/webm;codecs=opus","audio/webm","audio/ogg;codecs=opus","audio/ogg"];
+      for (const m of c) if (window.MediaRecorder && MediaRecorder.isTypeSupported(m)) return m;
+      return "";
+    };
+    const stopAllTracks = (s) => { if (s) s.getTracks().forEach(t => t.stop()); };
+  
+    async function startRecording() {
+      try {
+        currentStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(currentStream, { mimeType: getBestAudioMime() });
+        audioChunks = [];
+        mediaRecorder.ondataavailable = e => { if (e.data && e.data.size) audioChunks.push(e.data); };
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(audioChunks, { type: mediaRecorder.mimeType || "audio/webm" });
+          const ext = blob.type.includes("ogg") ? "ogg" : blob.type.includes("webm") ? "webm" : "wav";
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a"); a.href = url; a.download = `note_recording.${ext}`;
+          document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+          stopAllTracks(currentStream); currentStream = null; audioChunks = [];
+        };
+        mediaRecorder.start();
+        recordBtn.textContent = "⏹ Stop Recording";
+        recordBtn.setAttribute("aria-pressed", "true");
+      } catch (err) {
+        console.error(err);
+        alert("Microphone permission denied or unavailable.");
+        recordBtn.textContent = "🎤 Start Recording";
+        recordBtn.removeAttribute("aria-pressed");
+        stopAllTracks(currentStream); currentStream = null;
+      }
+    }
+    function stopRecording() {
+      if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
+      recordBtn.textContent = "🎤 Start Recording";
+      recordBtn.removeAttribute("aria-pressed");
+    }
+    if (recordBtn) {
+      recordBtn.addEventListener("click", () => {
+        if (recordBtn.textContent.includes("Start")) startRecording();
+        else stopRecording();
+      });
+    }
+  
+    /* =================== Speech to Text =================== */
+    const speechBtn = document.getElementById("speech-btn");
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null, isRecognizing = false;
+  
+    if (SpeechRecognition) {
+      recognition = new SpeechRecognition();
+      recognition.continuous = true; recognition.interimResults = true; recognition.lang = "en-US";
+      recognition.onresult = (event) => {
+        let finalTranscript = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript + " ";
+        }
+        if (finalTranscript && bodyInput) bodyInput.value += finalTranscript;
+      };
+      recognition.onend = () => { isRecognizing = false; if (speechBtn) speechBtn.textContent = "🗣 Speech to Text"; };
+    } else if (speechBtn) {
+      speechBtn.disabled = true; speechBtn.title = "Speech recognition not supported in this browser.";
+    }
+    if (speechBtn && recognition) {
+      speechBtn.addEventListener("click", () => {
+        if (!isRecognizing) { recognition.start(); isRecognizing = true; speechBtn.textContent = "⏹ Stop Speech"; }
+        else { recognition.stop(); }
+      });
+    }
+  
+    /* ====================== Dark Mode ====================== */
+    let darkmode = localStorage.getItem("darkmode");
+    const themeSwitch = document.getElementById("theme-switch");
+    const enableDarkmode = () => { document.body.classList.add("darkmode"); localStorage.setItem("darkmode","active"); };
+    const disableDarkmode = () => { document.body.classList.remove("darkmode"); localStorage.setItem("darkmode","inactive"); };
+    if (darkmode === "active") enableDarkmode();
+    if (themeSwitch) themeSwitch.addEventListener("click", () => {
+      darkmode = localStorage.getItem("darkmode");
+      darkmode !== "active" ? enableDarkmode() : disableDarkmode();
+    });
+  });
+  
