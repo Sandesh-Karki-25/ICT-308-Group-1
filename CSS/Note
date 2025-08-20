@@ -1,0 +1,438 @@
+.roboto body {
+  font-family: "Roboto", sans-serif;
+  font-optical-sizing: auto;
+}
+
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    min-height: 100vh;
+    background: #f8f8f8;
+  }
+  
+  /* Sidebar */
+  .sidebar {
+    width: 250px;
+    background: #fff;
+    border-right: 1px solid #ddd;
+    padding: 20px;
+  }
+  
+  .sidebar h2 {
+    margin-bottom: 20px;
+    font-size: 20px;
+  }
+   .sidebar ul {
+      list-style: none;
+    }
+  
+    .sidebar li {
+      margin: 15px 0;
+    }
+  
+    .sidebar a {
+      color: #333;
+      text-decoration: none;
+      font-size: 15px;
+    }
+  
+    .sidebar a:hover {
+      text-decoration: underline;
+    }
+  
+  .new-note {
+    background: #0066ff;
+    color: #fff;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+  
+  .recent ul {
+    list-style: none;
+    padding-left: 0;
+   
+  }
+  
+  .recent li {
+    margin: 10px 0;
+     align-items: center;
+  }
+  
+  .recent a {
+    color: #000000;
+    text-decoration: none;
+  }
+  
+  .recent a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Main Content */
+  .main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Header */
+  header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+  
+  }
+  .logo-container {
+    display: flex;
+    align-items: center; /* Vertically centers logo and text */
+    gap: 10px; /* Space between logo and text */
+    margin-bottom: 15px; /* Space below "I-NOTES" */
+  }
+  .logo {
+    font-weight: bold;
+    font-size: 20px;
+   
+  }
+  
+  .main-logo {
+    width: 50px;
+    height: 50px;
+    
+  
+    
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  /* Basic Styling */
+  
+  .container {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: right;
+    align-items: right;
+  }
+  
+  .title {
+    font-size: 2rem;
+    color: black;
+    margin-bottom: 2rem;
+  }
+  
+  
+  
+  .user {
+    background: #ccc;
+    border-radius: 50%;
+    padding: 8px 12px;
+    font-weight: bold;
+  }
+  
+  /* Dashboard */
+  .dashboard {
+    padding: 20px;
+  }
+  
+  .dashboard h1 {
+    margin-bottom: 20px;
+    
+  }
+  
+  .section-title {
+    margin-bottom: 10px;
+  }
+  
+  .folders {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .folder, .add-folder {
+    background: #e6e6e6;
+    padding: 50px;
+    border-radius: 8px;
+    border: none;
+    width: 200px;
+    text-align: center;
+    cursor: pointer;
+  }
+  
+  .favourites-section {
+    margin-top: 30px;
+  }
+  
+  .favourites-section h2 {
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    margin-bottom: 10px;
+    gap:50px;
+  }
+  
+  .view-all {
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;  
+    color: #000000;
+   
+  }
+  
+  .favourite-note {
+    background: #e6e6e6;
+    padding: 50px;
+    border-radius: 8px;
+    width: 200px;
+  }
+  
+  .stats {
+    margin-top: 30px;
+    display: flex;
+    gap: 20px;
+  }
+  
+  .stat-box {
+    background: #dcdcdc;
+    padding: 15px;
+    border-radius: 8px;
+    width: 150px;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  .stat-box span {
+    display: block;
+    margin-top: 10px;
+    font-size: 20px;
+  }
+  
+  .logo-background {
+    position: fixed;
+    top: 50%;
+    left: 1.25%;
+    transform: translateY(-50%);
+    opacity: 0.12;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  
+  /* Responsive */
+  @media (max-width: 900px) {
+    body {
+      flex-direction: column;
+    }
+  
+    .sidebar {
+      width: 100%;
+      border-right: none;
+      border-bottom: 1px solid #ddd;
+    }
+  
+    
+    .folders, .favourite-note {
+      width: 100%;
+    }
+  }
+  
+  :root{
+    --base-color: white;
+    --base-variant: #e8e9ed;
+    --text-color: #111528;
+    --secondary-text: #232738;
+    --primary-color: #3a435d;
+    --accent-color: #0071ff;
+  }
+
+  
+  .darkmode{
+    --base-color: #070b1d;
+    --base-variant: #101425;
+    --text-color: #ffffff;
+    --secondary-text: #a4a5b8;
+    --primary-color: #3a435d;
+    --accent-color: #0071ff;
+  }
+  *{
+    margin: 0;
+    padding: 0;
+  }
+  html{
+    font-family: Poppins;
+  }
+  body{
+    min-height: 100vh;
+    background-color: var(--base-color);
+    color: var(--text-color);
+  }
+  header, section{
+    padding: 70px min(50px, 7%);
+  }
+  section{
+    background-color: var(--base-variant);
+  }
+  p{
+    margin: 10px 0 20px 0;
+    color: var(--secondary-text);
+  }
+  button{
+    border: none;
+    padding: .8em 2em;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 4px;
+    font: inherit;
+    text-transform: uppercase;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  .cta-button{
+    background-color: var(--accent-color);
+  }
+  #theme-switch{
+    height: 50px;
+    width: 50px;
+    padding: 0;
+    border-radius: 50%;
+    background-color: var(--base-variant);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+  }
+  #theme-switch svg{
+    fill: var(--primary-color);
+  }
+  #theme-switch svg:last-child{
+    display: none;
+  }
+  .darkmode #theme-switch svg:first-child{
+    display: none;
+  }
+  .darkmode #theme-switch svg:last-child{
+    display: block;
+  }
+
+
+
+
+
+
+
+
+  
+  /* ================================
+   Unified page header (title + search)
+   ================================ */
+.page-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#fff;
+    padding:10px 15px;
+    border-radius:8px;
+    margin-bottom:20px;
+  }
+  .page-header h1{ margin:0; font-size:24px; }
+  
+  /* Inline search (does NOT use your animated .search-form) */
+  .search-form-inline{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  
+  /* Override the global .search-input/.search-button styles when inside .search-form-inline */
+  .search-form-inline .search-input{
+    all: unset;              /* reset the animated pill styles */
+    box-sizing: border-box;
+    padding:8px 12px;
+    border:1px solid #ddd;
+    border-radius:6px;
+    font-size:14px;
+    background:#fff;
+    width:18rem;             /* tweak as you like */
+  }
+  .search-form-inline .search-button{
+    all: unset;
+    box-sizing: border-box;
+    background:#0066ff;
+    color:#fff;
+    padding:8px 12px;
+    border-radius:6px;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .search-form-inline .search-button:hover{ background:#0052cc; }
+  
+  /* Ensure any icons inside the inline button are centered naturally */
+  .search-form-inline .search-button i{
+    position: static;
+    transform:none;
+    font-size:1rem;
+  }
+  
+  /* ================================
+     Notes list cards (Dashboard/Favourites)
+     ================================ */
+  #notes-list, #favourites-list{
+    display:grid;
+    gap:12px;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+  .note-card{
+    background:#fff;
+    border:1px solid #e5e5e5;
+    border-radius:10px;
+    padding:12px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .note-card h3{ margin:0; font-size:16px; }
+  .note-card p{ margin:0; color:#555; max-height:4.5em; overflow:hidden; }
+  .note-meta{ font-size:12px; color:#888; }
+  .note-actions-row{ display:flex; gap:8px; margin-top:6px; }
+  .note-btn{
+    border:none; border-radius:6px; padding:6px 10px; cursor:pointer;
+    font-size:13px; background:#f2f2f2;
+  }
+  .note-btn.primary{ background:#0066ff; color:#fff; }
+  .note-btn.warn{ background:#ffe3e3; color:#b00020; }
+  
+  /* ================================
+     Optional: tame the big global padding rule
+     You currently have:  header, section { padding: 70px ... }
+     That’s great for a landing page but too big for this app.
+     These overrides reduce it inside the app layout.
+     ================================ */
+  .main header{ padding:15px; }     /* your app headers */
+  .main section{ padding:20px; }    /* content sections */
+  
