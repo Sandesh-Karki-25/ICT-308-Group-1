@@ -1,0 +1,118 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I-NOTES-Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <h2>I-NOTES</h2>
+    <button class="new-note" onclick="window.location.href='notes.html'">+ New Note</button>
+
+    <nav> 
+      <ul>
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="fav.html">Favourites</a></li>
+        <li><a href="all.html">All Notes</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <header>
+       <div class="logo-container">
+      <img src="cihelogo.png" alt="CIHE Background Logo" class="logo-background">
+      <img src="cihelogo.png" alt="CIHE Logo" class="main-logo"></div>
+        <h2>Audio Recordings</h2>
+      <div class="search-container"> 
+         <form class="search-form-inline" action="">
+        <input type="text" placeholder="Search notes..." class="search-bar" aria-label="Search notes">
+        <button class="search-button">
+          <img src="search.png" alt="Search Icon" class="search-icon">
+        </button>
+        <img id="bmode"  src="dark.png"  >
+        <div class="user-menu">
+  <div class="user" id="userBtn">SS</div>
+  <div class="dropdown" id="userDropdown">
+    <ul>
+      <li><a href="#" role="button" onclick="openProfileModal()">Profile</a></li>
+       <li><a href="#" role="button" onclick="openSettingsModal()">Settings</a></li>
+      <li><a href="login.html" >Logout</a></li>
+    </ul>
+       
+      </div>
+      </form>
+    </header>
+    <!-- Profile Modal -->
+  <div class="profile-modal" id="profileModal">
+    <div class="profile-content">
+      <div class="profile-header">
+        <h2 id="modalTitle">Profile</h2>
+        <span class="close-btn" onclick="closeProfileModal()" role="button">✖</span>
+        
+      </div>
+      <div class="tab-content">
+        <!-- Profile Tab -->
+        
+          <div class="profile-info">
+            <div class="profile-avatar">SS</div>
+            <div class="profile-details">
+              <h3>Sarah Smith</h3>
+              <p>sarah.smith@example.com</p>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="fullName">Full Name</label>
+            <input type="text" id="fullName" value="Sarah Smith">
+          </div>
+          
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" value="sarah.smith@example.com">
+          </div>
+          
+          <div class="form-group">
+            <label for="bio">Bio</label>
+            <input type="text" id="bio" value="UX Designer & Note Taker">
+          </div>
+        
+      </div>
+    </div>
+  </div>
+
+  <div class="settings-modal" id="settingsModal">
+     <div class="setttings-content">
+      <div class="settings-header">
+       <h2 id="modalTitle">Settings</h2>
+       <span class="close-btn" onclick="closeSettingsModal()">✖</span>
+      </div>
+      
+      
+      
+      <div id="settings-tab" class="tab-pane">
+        <div class="form-group">
+          <label>Body Font Size: <span id="bodySizeValue">16</span>px</label>
+          <div class="slider-container">
+            <input type="range" id="bodyFontSize" min="12" max="24" value="16" oninput="updateBodyFontSize(this.value)">
+            <div class="slider-value" id="bodySizeValueDisplay">16px</div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Heading Font Size: <span id="headingSizeValue">24</span>px</label>
+          <div class="slider-container">
+            <input type="range" id="headingFontSize" min="18" max="36" value="24" oninput="updateHeadingFontSize(this.value)">
+            <div class="slider-value" id="headingSizeValueDisplay">24px</div>
+          </div>
+        </div>
+      </div>
+     </div>
+  </div>
+    </section>
+  </main>
+  <script src ="profile.js"></script>
+  <script src="notes.js"></script>
+</body>
+</html>
