@@ -1,147 +1,176 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id'])) {
-  header("Location: /New Note/Login.html");
-  exit;
+if (!isset($_SESSION['student_id'])) {
+    header("Location: /notes/login.html?error=" . urlencode("Please log in."));
+    exit();
 }
 ?>
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>I-NOTES – Dashboard</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js" defer></script>
-  <script src="Note.js" defer></script>
-
-   <!-- Fonts -->
-   <link rel="preconnect" href="https://fonts.googleapis.com">
-   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-   <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-
-  <style>
-    .roboto body {
-  font-family: "Roboto", sans-serif;
-  font-optical-sizing: auto;
-}
-
-
-
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{display:flex;min-height:100vh;background:#f8f8f8;font-family:Arial,Helvetica,sans-serif}
-    .sidebar{width:250px;background:#fff;border-right:1px solid #ddd;padding:20px;z-index:2}
-    .sidebar h2{margin-bottom:20px;font-size:50px}
-    .new-note{background:#002E5D;color:#fff;border:none;padding:10px;width:100%;border-radius:6px;cursor:pointer;margin-bottom:20px}
-    .recent ul{list-style:none;padding-left:0}
-    .recent li{margin:12px 0}
-    .recent a{color:#333;text-decoration:none}
-    .recent a:hover{text-decoration:underline}
-    .main{flex:1;display:flex;flex-direction:column;position:relative;z-index:1}
-    .logo-background{position:fixed;top:50%;left:1.25%;transform:translateY(-50%);opacity:.05;z-index:0;width:100%;height:100%;pointer-events:none}
-    .page-header{display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center;background:#fff;padding:12px 15px;border-radius:10px;margin:15px}
-    .logo-container{display:flex;align-items:center;gap:10px}
-    .logo{font-weight:700;font-size:28px}
-    .main-logo{width:75px;height:75px}
-    .page-header h1{margin:0;font-size:22px}
-    .header-right{display:flex;align-items:center;gap:12px;justify-self:end}
-    .search-form-inline{display:flex;align-items:center;gap:8px}
-    .search-form-inline .search-input{padding:8px 12px;border:1px solid #ddd;border-radius:6px;font-size:14px;background:#fff;width:18rem}
-    .search-form-inline .search-button{background:#002E5D;color:#fff;border:none;border-radius:6px;padding:8px 12px;cursor:pointer}
-    .search-form-inline .search-button:hover{background:#0052cc}
-    .user{background:#ccc;border-radius:50%;padding:8px 12px;font-weight:700}
-    .dashboard{padding:0 15px 20px 15px}
-    .section-title{margin:15px 0 10px 0;font-weight:700}
-    .folders{display:flex;flex-wrap:wrap;gap:15px}
-    .add-folder{background:#e6e6e6;padding:40px;border-radius:8px;border:none;width:200px;text-align:center;cursor:pointer}
-    #notes-list{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))}
-    .note-card{background:#fff;border:1px solid #e5e5e5;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px}
-    .note-card h3{margin:0;font-size:16px}
-    .note-card p{margin:0;color:#555;max-height:4.5em;overflow:hidden}
-    .note-meta{font-size:12px;color:#888}
-    .note-actions-row{display:flex;gap:8px;margin-top:6px}
-    .note-btn{border:none;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:13px;background:#f2f2f2}
-    .note-btn.primary{background:#002E5D;color:#fff}
-    .note-btn.warn{background:#ffe3e3;color:#b00020}
-    .stats{margin-top:20px;display:flex;gap:20px}
-    .stat-box{background:#dcdcdc;padding:15px;border-radius:8px;width:150px;font-weight:700;text-align:center}
-    .stat-box span{display:block;margin-top:10px;font-size:20px}
-    @media (max-width:900px){body{flex-direction:column}.sidebar{width:100%;border-right:none;border-bottom:1px solid #ddd}}
-
-    /* top utility header only for theme button (kept tiny) */
-    .utility-header{display:flex;justify-content:flex-end;align-items:center;padding:12px}
-    #theme-switch{height:42px;width:42px;border:none;border-radius:50%;background:#e8e9ed;display:flex;align-items:center;justify-content:center;cursor:pointer}
-    #theme-switch svg{fill:#3a435d}
-    #theme-switch svg:last-child{display:none}
-    .darkmode #theme-switch svg:first-child{display:none}
-    .darkmode #theme-switch svg:last-child{display:block}
-
-    /* Dark mode vars (optional) */
-    :root{--base-color:#fff;--base-variant:#e8e9ed;--text-color:#111528;--primary-color:#3a435d}
-    .darkmode{--base-color:#070b1d;--base-variant:#101425;--text-color:#fff}
-    body.darkmode{background:var(--base-color);color:var(--text-color)}
-    .darkmode .sidebar,.darkmode .page-header,.darkmode .note-title-container,.darkmode .note-section{background:#101425;border-color:#1e2442}
-    .darkmode .search-form-inline .search-input{background:#0c1126;color:#fff;border-color:#1e2442}
-    .darkmode .logo-background {opacity: 0.03;}
-
-    .darkmode #notes-list,
-    .darkmode .recent a {
-    color: var(--text-color);}
-  
-  </style>
-
-
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <img src="CIHE Logo.png" alt="CIHE Background Logo" class="logo-background">
-
   <aside class="sidebar">
     <h2>I-NOTES</h2>
-    <button class="new-note" onclick="window.location.href='New Note.html'">+ New Note</button>
-    <nav class="recent">
+    <button class="new-note" onclick="window.location.href='notes.php'">+ New Note</button>
+    <nav>
       <ul>
-        <li><a href="Fav.html">Favourites</a></li>
-        <li><a href="Audio Recording.html">Audio Recording</a></li>
-        
+        <li><a href="dashboard.php">Dashboard</a></li>
+        <li><a href="fav.php">Favourites</a></li>
+        <li><a href="all.php">All Notes</a></li>
       </ul>
     </nav>
   </aside>
 
   <main class="main">
-    <!-- tiny utility header (theme) -->
-    <div class="utility-header">
-        <button id="theme-switch" aria-label="Toggle theme">
-          <!-- Moon -->
-          <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="M480-120q-150 0-255-105T120-480q0-150 105-255t255-105q14 0 27.5 1t26.5 3q-41 29-65.5 75.5T444-660q0 90 63 153t153 63q55 0 101-24.5t75-65.5q2 13 3 26.5t1 27.5q0 150-105 255T480-120Z"/></svg>
-          <!-- Sun -->
-          <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-360q50 0 85-35t35-85q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 50 35 85t85 35Zm0 80q-83 0-141.5-58.5T280-480q0-83 58.5-141.5T480-680q83 0 141.5 58.5T680-480q0 83-58.5 141.5T480-280ZM200-440H40v-80h160v80Zm720 0H760v-80h160v80ZM440-760v-160h80v160h-80Zm0 720v-160h80v160h-80ZM256-650l-101-97 57-59 96 100-52 56Zm492 496-97-101 53-55 101 97-57 59Zm-98-550 97-101 59 57-100 96-56-52ZM154-212l101-97 55 53-97 101-59-57Zm326-268Z"/></svg>
-        </button>
-      </div>
-
-    <div class="page-header">
+    <header>
       <div class="logo-container">
-        <img src="CIHE Logo.png" alt="CIHE Logo" class="main-logo">
+        <img src="cihelogo.png" alt="CIHE Background Logo" class="logo-background">
+        <img src="cihelogo.png" alt="CIHE Logo" class="main-logo">
       </div>
-
-      <h1>Dashboard</h1>
-
-      <div class="header-right">
-        <form class="search-form-inline" action="">
-          <input class="search-input" type="text" placeholder="Type to search" aria-label="Search notes"/>
-          <button class="search-button" type="submit" aria-label="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
-        </form>
-        <div class="user">SS</div>
+      <h2>Dashboard</h2>
+      <div class="search-container">
+      <form class="search-form-inline" id="searchForm" action="#" onsubmit="event.preventDefault(); doSearch();">
+  <input type="text" placeholder="Search notes..." class="search-bar" id="searchInput" aria-label="Search notes">
+  <button class="search-button" type="submit">
+    <img src="search.png" alt="Search Icon" class="search-icon">
+  </button>
+</form>
+<div id="searchResults"></div>
+        <img id="bmode" src="dark.png" alt="Toggle dark mode">
+        <div class="user-menu">
+          <div class="user" id="userBtn"><?php echo htmlspecialchars($_SESSION['username'][0] ?? 'U'); ?></div>
+          <div class="dropdown" id="userDropdown">
+            <ul>
+              <li><a href="#" onclick="openProfileModal(); return false;">Profile</a></li>
+              <li><a href="#" onclick="openSettingsModal(); return false;">Settings</a></li>
+              <li><a href="logout.php">Logout</a></li>
+            </ul>
+          </div>
+        </div>
       </div>
+    </header>
+
+    <section class="content">
+      <div class="section-title"><h2>Folders</h2></div>
+      <button class="add-folder" onclick="openModal()">+ Add folders</button>
+      <div class="folder-list" id="folderList"></div>
+      <!-- Modal -->
+      <div class="modal" id="folderModal" style="display:none;">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <h3>Add Folder</h3>
+    <input type="text" id="folderNameInput" placeholder="Enter folder name">
+    <div class="modal-container">
+      <button onclick="createFolder()">Create</button>
     </div>
-
-    <section class="dashboard">
-      <div class="section-title"> Folders </div>
-      <div class="folders">
-        <button class="add-folder"> Add Folders </button>
-      </div>
+  </div>
+</div>
     </section>
   </main>
+
+  <!-- scripts -->
+  <script src="profile.js"></script>
+  <script src="notes.js"></script>
+  <script src="folders.js"></script>
+  <script>
+    // Simple search handler (redirect to All page with ?q=)
+    function doSearch() {
+      const q = document.getElementById('searchInput').value.trim();
+      const url = new URL('all.php', location.href);
+      if (q) url.searchParams.set('q', q);
+      location.href = url.toString();
+    }
+
+    // Folder modal logic (same as your HTML dashboard)
+    let folders = [];
+    window.onload = function() {
+      const savedFolders = localStorage.getItem('folders');
+      if (savedFolders) {
+        folders = JSON.parse(savedFolders);
+        renderFolders();
+      }
+    };
+    function openModal() {
+      document.getElementById('folderModal').style.display = 'block';
+    }
+    function closeModal() {
+      document.getElementById('folderModal').style.display = 'none';
+      document.getElementById('folderNameInput').value = '';
+    }
+    function createFolder() {
+      const folderName = document.getElementById('folderNameInput').value.trim();
+      if (folderName) {
+        folders.push(folderName);
+        localStorage.setItem('folders', JSON.stringify(folders));
+        renderFolders();
+        closeModal();
+      }
+    }
+    function renderFolders() {
+      const folderList = document.getElementById('folderList');
+      folderList.innerHTML = '';
+      folders.forEach((name, idx) => {
+        const a = document.createElement('a');
+        a.className = 'folder-item';
+        a.textContent = name;
+        a.href = `folder.php?name=${encodeURIComponent(name)}`;
+        a.style.textDecoration = 'none';
+        folderList.appendChild(a);
+      });
+    }
+    window.onclick = function(event) {
+      const modal = document.getElementById('folderModal');
+      if (event.target == modal) {
+        closeModal();
+      }
+    }
+
+    function doSearch() {
+  const q = document.querySelector('.search-bar').value.trim().toLowerCase();
+  const searchResults = document.getElementById('searchResults');
+  searchResults.innerHTML = '';
+
+  if (!q) return;
+
+  // Search folders
+  const folders = JSON.parse(localStorage.getItem('folders') || '[]');
+  folders.forEach(folder => {
+    if (folder.toLowerCase().includes(q)) {
+      const a = document.createElement('a');
+      a.textContent = `Folder: ${folder}`;
+      a.href = `folder.html?name=${encodeURIComponent(folder)}`;
+      a.className = 'search-result';
+      searchResults.appendChild(a);
+      searchResults.appendChild(document.createElement('br'));
+    }
+  });
+
+  // Search notes in all folders
+  for (let key in localStorage) {
+    if (key.startsWith('notes_')) {
+      const folderName = key.replace('notes_', '');
+      const notes = JSON.parse(localStorage.getItem(key));
+      notes.forEach((note, idx) => {
+        if (
+          (note.title && note.title.toLowerCase().includes(q)) ||
+          (note.content && note.content.toLowerCase().includes(q))
+        ) {
+          const a = document.createElement('a');
+          a.textContent = `Note: ${note.title} (in ${folderName})`;
+          a.href = `notes.html?folder=${encodeURIComponent(folderName)}&note=${idx}`;
+          a.className = 'search-result';
+          searchResults.appendChild(a);
+          searchResults.appendChild(document.createElement('br'));
+        }
+      });
+    }
+  }
+}
+  </script>
 </body>
 </html>
