@@ -1,0 +1,33 @@
+<?php
+session_start();
+require_once 'database.php';
+
+if (!isset($_SESSION['student_id'])) {
+    http_response_code(403);
+    exit('Not logged in');
+}
+if (!isset($_POST['note_id'])) {
+    http_response_code(400);
+    exit('No note id');
+}
+
+$note_id = $_POST['note_id'];
+$student_id = $_SESSION['student_id'];
+
+// Make sure the note belongs to the user
+$stmt = $conn->prepare("SELECT n.id FROM notes n JOIN folders f ON n.folder_id = f.id WHERE n.id = ? AND f.user_id = ?");
+$stmt->bind_param("ii", $note_id, $student_id);
+$stmt->execute();
+$stmt->bind_result($found_id);
+if ($stmt->fetch()) {
+    $stmt->close();
+    $del_stmt = $conn->prepare("DELETE FROM notes WHERE id = ?");
+    $del_stmt->bind_param("i", $note_id);
+    $del_stmt->execute();
+    $del_stmt->close();
+    echo "success";
+} else {
+    $stmt->close();
+    echo "Note not found";
+}
+?>
