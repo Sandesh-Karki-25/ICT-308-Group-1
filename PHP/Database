@@ -1,14 +1,22 @@
 <?php
-// Database.php
-$DB_HOST = "localhost";
-$DB_USER = "root";      // default XAMPP MySQL user
-$DB_PASS = "";          // default XAMPP MySQL password (empty)
-$DB_NAME = "Login";
+// Show useful errors while developing (remove in production)
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-$mysqli = new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME);
+// Make mysqli throw exceptions instead of hiding them
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-if ($mysqli->connect_error) {
-  die("Database connection failed: " . $mysqli->connect_error);
-}
+$servername = "localhost";
+$username   = "root";
+$password   = "";        // XAMPP default
+$dbname     = "login";   // your DB name
 
-$mysqli->set_charset("utf8mb4");
+// Connect
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Always set a safe charset (emoji + all Unicode)
+$conn->set_charset('utf8mb4');
+
+// Optional: if you want consistent SQL mode during dev
+//$conn->query("SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'");
