@@ -1,0 +1,363 @@
+<?php
+session_start();
+require_once 'database.php';
+if (!isset($_SESSION['student_id'])) {
+    header("Location: /notes/login.html?error=" . urlencode("Please log in."));
+    exit();
+}
+
+$student_id = $_SESSION['student_id'];
+$folder_name = $_GET['folder'] ?? '';
+$note_id = $_GET['note_id'] ?? null;
+
+// Get folder ID
+$folder_id = null;
+$stmt = $conn->prepare("SELECT id FROM folders WHERE user_id = ? AND name = ?");
+$stmt->bind_param("is", $student_id, $folder_name);
+$stmt->execute();
+$stmt->bind_result($folder_id);
+$stmt->fetch();
+$stmt->close();
+
+// Load note if editing
+$note_title = '';
+$note_content = '';
+if ($note_id && $folder_id) {
+    $note_stmt = $conn->prepare("SELECT title, content FROM notes WHERE id = ? AND folder_id = ?");
+    $note_stmt->bind_param("ii", $note_id, $folder_id);
+    $note_stmt->execute();
+    $note_stmt->bind_result($note_title, $note_content);
+    $note_stmt->fetch();
+    $note_stmt->close();
+}
+
+// Handle save (POST)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $title = $_POST['title'] ?? '';
+    $content = $_POST['content'] ?? '';
+    if ($note_id && $folder_id) {
+        // Update existing note
+        $update_stmt = $conn->prepare("UPDATE notes SET title = ?, content = ? WHERE id = ? AND folder_id = ?");
+        $update_stmt->bind_param("ssii", $title, $content, $note_id, $folder_id);
+        $update_stmt->execute();
+        $update_stmt->close();
+    } else if ($folder_id) {
+        // Create new note
+        $insert_stmt = $conn->prepare("INSERT INTO notes (folder_id, title, content) VALUES (?, ?, ?)");
+        $insert_stmt->bind_param("iss", $folder_id, $title, $content);
+        $insert_stmt->execute();
+        $insert_stmt->close();
+    }
+    header("Location: folder.php?name=" . urlencode($folder_name));
+    exit();
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>I-NOTES – New Note</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <aside class="sidebar">
+    <h2>I-NOTES</h2>
+    <button class="new-note" onclick="window.location.href='notes.php'">+ New Note</button>
+    <nav>
+      <ul>
+        <li><a href="dashboard.php">Dashboard</a></li>
+        <li><a href="fav.php">Favourites</a></li>
+        <li><a href="all.php">All Notes</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <header>
+      <div class="logo-container">
+        <img src="cihelogo.png" alt="CIHE Background Logo" class="logo-background">
+        <img src="cihelogo.png" alt="CIHE Logo" class="main-logo">
+      </div>
+      <div class="search-container">
+        <form class="search-form-inline" id="searchForm" action="#" onsubmit="event.preventDefault(); doSearch();">
+          <input type="text" placeholder="Search notes..." class="search-bar" id="searchInput" aria-label="Search notes">
+          <button class="search-button" type="submit">
+            <img src="search.png" alt="Search Icon" class="search-icon">
+          </button>
+        </form>
+        <img id="bmode" src="dark.png" alt="Toggle dark mode">
+        <div class="user-menu">
+          <div class="user" id="userBtn"><?php echo htmlspecialchars($_SESSION['username'][0] ?? 'U'); ?></div>
+          <div class="dropdown" id="userDropdown">
+            <ul>
+              <li><a href="#" role="button" onclick="openProfileModal()">Profile</a></li>
+              <li><a href="#" role="button" onclick="openSettingsModal()">Settings</a></li>
+              <li><a href="logout.php">Logout</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="format">
+      <button class="format-btn" id="bold-btn">B</button>
+      <button class="format-btn" id="italic-btn">I</button>
+      <button class="format-btn" id="underline-btn">U</button>
+      <select id="fontSelect">
+        <option value="ui">Sans (Inter)</option>
+        <option value="serif">Serif (Merriweather)</option>
+        <option value="mono">Mono</option>
+      </select>
+      <button class="format-btn" id="clear-btn"><img class="clear" src="delete.png"></button>
+      <span><img class="fav-btn" id="favBtn" src="star.png"></span>
+    </div>
+
+    <section class="content">
+      <div class="section-title">
+        <h2>Create a New Note</h2>
+      </div>
+      <div>
+        <input type="text" class="note-title" placeholder="Enter note title..." aria-label="Note title">
+        <div id="note-area" contenteditable="true" class="note-area" style="min-height:150px; border:1px solid #ccc; padding:8px;" placeholder="Start writing your note here..."></div>
+        <div class="audio-controls">
+          <button id="record-btn">Start Recording</button>
+          <button id="speech-btn">Speech to Text</button>
+        </div>
+        <div class="note-actions">
+          <button class="save-btn">Save</button>
+          <button class="cancel-btn" onclick="window.location.href='folder.php?name=' + encodeURIComponent(getFolderName())">Cancel</button>
+          <button class="share-button" onclick="openModal()"><img class="share" src="share.png"></button>
+          <div class="share-list" id="shareList"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Share Modal -->
+    <div class="share-overlay" id="shareOverlay">
+      <div class="share-popup">
+        <span class="close-btn" onclick="closeModal()">✖</span>
+        <div class="email-share">
+          <input type="email" id="emailInput" placeholder="Enter email">
+          <button onclick="shareByEmail()">Share</button>
+        </div>
+        <div class="copy-link">
+          <button onclick="copyLink()">Copy Link</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="profile-modal" id="profileModal">
+      <div class="profile-content">
+        <div class="profile-header">
+          <h2 id="modalTitle">Profile</h2>
+          <span class="close-btn" onclick="closeProfileModal()" role="button">✖</span>
+        </div>
+        <div class="tab-content">
+          <div class="profile-info">
+            <div class="profile-avatar"><?php echo htmlspecialchars($_SESSION['username'][0] ?? 'U'); ?></div>
+            <div class="profile-details">
+              <h3><?php echo htmlspecialchars($_SESSION['username'] ?? 'User'); ?></h3>
+              <p><?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?></p>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="fullName">Full Name</label>
+            <input type="text" id="fullName" value="<?php echo htmlspecialchars($_SESSION['username'] ?? ''); ?>">
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" value="<?php echo htmlspecialchars($_SESSION['email'] ?? ''); ?>">
+          </div>
+          <div class="form-group">
+            <label for="bio">Bio</label>
+            <input type="text" id="bio" value="">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="settings-modal" id="settingsModal">
+      <div class="setttings-content">
+        <div class="settings-header">
+          <h2 id="modalTitle">Settings</h2>
+          <span class="close-btn" onclick="closeSettingsModal()">✖</span>
+        </div>
+        <div id="settings-tab" class="tab-pane">
+          <div class="form-group">
+            <label>Body Font Size: <span id="bodySizeValue">16</span>px</label>
+            <div class="slider-container">
+              <input type="range" id="bodyFontSize" min="12" max="24" value="16" oninput="updateBodyFontSize(this.value)">
+              <div class="slider-value" id="bodySizeValueDisplay">16px</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Heading Font Size: <span id="headingSizeValue">24</span>px</label>
+            <div class="slider-container">
+              <input type="range" id="headingFontSize" min="18" max="36" value="24" oninput="updateHeadingFontSize(this.value)">
+              <div class="slider-value" id="headingSizeValueDisplay">24px</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="profile.js"></script>
+  <script src="notes.js"></script>
+  <script src="share.js"></script>
+  <script>
+    // Get folder name from URL
+    function getFolderName() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('folder') || 'General';
+    }
+
+    document.querySelector('.save-btn').onclick = function() {
+  const title = document.querySelector('.note-title').value.trim();
+  const content = document.getElementById('note-area').innerHTML.trim();
+  if (!title && !content) return;
+  const folderName = getFolderName();
+
+  // Save to localStorage
+  let notes = [];
+  const savedNotes = localStorage.getItem('notes_' + folderName);
+  if (savedNotes) notes = JSON.parse(savedNotes);
+  notes.push({ title, content });
+  localStorage.setItem('notes_' + folderName, JSON.stringify(notes));
+
+  // Download as .txt file
+  const txtContent = `Title: ${title}\n\n${content}`;
+  const blob = new Blob([txtContent], { type: 'text/plain' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `${title || 'note'}.txt`;
+  document.body.appendChild(link);
+  link.click();
+
+ 
+
+  // Redirect back to folder
+  window.location = `folder.php?name=${encodeURIComponent(folderName)}`;
+};
+
+    function doSearch() {
+      const q = document.getElementById('searchInput').value.trim();
+      const url = new URL('all.php', location.href);
+      if (q) url.searchParams.set('q', q);
+      location.href = url.toString();
+    }
+    function getFolderName() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('folder') || 'General';
+}
+function getNoteIndex() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get('note');
+}
+
+// On page load, if editing, load note data
+window.onload = function() {
+  const folderName = getFolderName();
+  const noteIdx = getNoteIndex();
+  if (noteIdx !== null) {
+    const notes = JSON.parse(localStorage.getItem('notes_' + folderName) || '[]');
+    const note = notes[noteIdx];
+    if (note) {
+      document.querySelector('.note-title').value = note.title;
+      document.getElementById('note-area').innerHTML = note.content;
+    }
+  }
+};
+
+
+// Add this after your other functions
+document.getElementById('favBtn').onclick = function() {
+  const title = document.querySelector('.note-title').value.trim();
+  const content = document.getElementById('note-area').value.trim();
+  const folderName = getFolderName();
+  const noteIdx = getNoteIndex();
+  let notes = JSON.parse(localStorage.getItem('notes_' + folderName) || '[]');
+
+  if (noteIdx !== null && notes[noteIdx]) {
+    // Mark existing note as favourite
+    notes[noteIdx].favourite = true;
+    localStorage.setItem('notes_' + folderName, JSON.stringify(notes));
+  } else if (title || content) {
+    // If new note, add as favourite
+    notes.push({ title, content, favourite: true });
+    localStorage.setItem('notes_' + folderName, JSON.stringify(notes));
+  }
+  alert('Note added to Favourites!');
+};
+   
+
+
+// Formatting for textarea
+const noteArea = document.getElementById('note-area');
+
+// Bold
+document.getElementById('bold-btn').onclick = function() {
+  document.execCommand('bold');
+  noteArea.focus();
+};
+
+// Italic
+document.getElementById('italic-btn').onclick = function() {
+  document.execCommand('italic');
+  noteArea.focus();
+};
+
+// Underline
+document.getElementById('underline-btn').onclick = function() {
+  document.execCommand('underline');
+  noteArea.focus();
+};
+
+// Clear formatting
+document.getElementById('clear-btn').onclick = function() {
+  const folderName = getFolderName();
+  const noteIdx = getNoteIndex();
+  let notes = JSON.parse(localStorage.getItem('notes_' + folderName) || '[]');
+
+  if (noteIdx !== null && notes[noteIdx]) {
+    // Delete the note
+    notes.splice(noteIdx, 1);
+    localStorage.setItem('notes_' + folderName, JSON.stringify(notes));
+    alert('Note deleted!');
+    window.location = `folder.php?name=${encodeURIComponent(folderName)}`;
+  } else {
+    // If not editing, just clear the editor
+    document.querySelector('.note-title').value = '';
+    document.getElementById('note-area').innerHTML = '';
+  }
+};
+
+// Font select
+document.getElementById('fontSelect').onchange = function() {
+  const val = this.value;
+  if (val === 'ui') noteArea.style.fontFamily = 'Inter, Arial, sans-serif';
+  else if (val === 'serif') noteArea.style.fontFamily = 'Merriweather, serif';
+  else if (val === 'mono') noteArea.style.fontFamily = 'monospace';
+};
+// Helper function to wrap selected text
+function wrapSelection(before, after) {
+  const start = noteArea.selectionStart;
+  const end = noteArea.selectionEnd;
+  const selected = noteArea.value.substring(start, end);
+  const newText = noteArea.value.substring(0, start) + before + selected + after + noteArea.value.substring(end);
+  noteArea.value = newText;
+  // Reselect the formatted text
+  noteArea.focus();
+  noteArea.selectionStart = start + before.length;
+  noteArea.selectionEnd = end + before.length;
+}
+
+
+// Add your formatting, audio, sharing, profile, and settings JS here
+    // (copy from notes.js, share.js, profile.js, etc.)
+  </script>
+</body>
+</html>
