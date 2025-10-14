@@ -1,1 +1,24 @@
+<?php
+session_start();
+include 'database.php';
 
+$user_id = $_SESSION['user_id'];
+$note_id = $_POST['note_id'];
+$title = $_POST['title'];
+$body = $_POST['body'];
+
+$conn->begin_transaction();
+
+try {
+    // Update the note text
+    $stmt = $conn->prepare("UPDATE notes SET title = ?, body = ? WHERE id = ? AND user_id = ?");
+    $stmt->bind_param("ssii", $title, $body, $note_id, $user_id);
+    $stmt->execute();
+
+    $conn->commit();
+    echo " Note updated successfully.";
+} catch (Exception $e) {
+    $conn->rollback();
+    echo "Error: Failed to update note. " . $e->getMessage();
+}
+?>
