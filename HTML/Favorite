@@ -13,7 +13,6 @@
     <nav> 
       <ul>
         <li><a href="dashboard.html">Dashboard</a></li>
-        <li><a href="audio.html">Audio Recording</a></li>
         <li><a href="all.html">All Notes</a></li>
       </ul>
     </nav>
