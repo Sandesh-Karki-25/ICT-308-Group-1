@@ -14,7 +14,7 @@
       <ul>
          <li><a href="dashboard.html">Dashboard</a></li>
         <li><a href="fav.html">Favourites</a></li>
-        <li><a href="audio.html">Audio Recording</a></li>
+        <li><a href="audio.html">Audio recording</a></li>
         <li><a href="all.html">All Notes</a></li>
       </ul>
     </nav>
@@ -50,20 +50,60 @@
  </header>
     
 
+
     <div class="format">
       <button class="format-btn" id="bold-btn">B</button>
       <button class="format-btn" id="italic-btn">I</button>
       <button class="format-btn" id="underline-btn">U</button>
-      <button class="format-btn" id="link-btn"><img class="link" src="link.png"></button>
+      
       <select id="fontSelect">
     <option value="ui">Sans (Inter)</option>
     <option value="serif">Serif (Merriweather)</option>
     <option value="mono">Mono</option>
   </select>
-      <button class="format-btn" id="image-btn"><img class="color" src="color.png"></button>
-      <button class="format-btn" id="list-btn"><img class="list" src="list.png">  </button>
-      <button class="format-btn" id="clear-btn"><img class="clear" src="delete.png"></button>
-     <span> <img class="fav-btn" id="favBtn" src="star.png"> </span>
+   <div class="color-picker-container">
+        <button class="format-btn" id="color-btn" title="Text Color"><img class="color" src="color.png" alt="Text color" /></button>
+        <div class="color-picker" id="colorPicker" role="menu" aria-label="Text colors">
+          <div class="color-option" style="background:#000000" data-color="#000000" title="Black"></div>
+          <div class="color-option" style="background:#ff0000" data-color="#ff0000" title="Red"></div>
+          <div class="color-option" style="background:#00aa00" data-color="#00aa00" title="Green"></div>
+          <div class="color-option" style="background:#0000ff" data-color="#0000ff" title="Blue"></div>
+          <div class="color-option" style="background:#ff9900" data-color="#ff9900" title="Orange"></div>
+          <div class="color-option" style="background:#ff00ff" data-color="#ff00ff" title="Magenta"></div>
+          <div class="color-option" style="background:#9966ff" data-color="#9966ff" title="Purple"></div>
+          <div class="color-option" style="background:#0099ff" data-color="#0099ff" title="Cyan"></div>
+        </div>
+      </div>
+
+       <!-- List controls: main button + horizontal options -->
+     <div class="list-menu-wrap">
+        <button class="format-btn" id="list-btn" title="Bulleted list">
+          <img class="list" src="list.png" alt="Insert list"/>
+        </button>
+        <div class="list-menu" id="listMenu" role="menu" aria-label="List options">
+          <button type="button" id="opt-bulleted" title="Bulleted list">
+            <span class="list-icon">•</span>
+            <span class="list-label">Bulleted</span>
+          </button>
+          <button type="button" id="opt-numbered" title="Numbered list">
+            <span class="list-icon">1.</span>
+            <span class="list-label">Numbered</span>
+          </button>
+          <button type="button" id="opt-checklist" title="Checklist">
+            <span class="list-icon">☑</span>
+            <span class="list-label">Checklist</span>
+          </button>
+          <button type="button" id="opt-indent" title="Increase indent">
+            <span class="list-icon">→</span>
+            <span class="list-label">Indent</span>
+          </button>
+          <button type="button" id="opt-outdent" title="Decrease indent">
+            <span class="list-icon">←</span>
+            <span class="list-label">Outdent</span>
+          </button>
+        </div>
+      </div>
+      </div>
     </div>
   
         <!-- Note Title -->
@@ -71,13 +111,13 @@
     </div>
     <!-- Note writing area -->
 
-    
-      <textarea id="note-area" placeholder="Start writing your note here..."></textarea>
+    <div id="note-area" contenteditable="true" placeholder="Start writing your note here..."></div>
 
       <!-- Audio buttons -->
       <div class="audio-controls">
         <button id="record-btn"> Start Recording</button>
         <button id="speech-btn"> Speech to Text</button>
+        <img class="fav-btn" id="favBtn" src="star.png"> 
       </div>
 
       <!-- Buttons -->
@@ -87,6 +127,16 @@
      <button class="share-button" onclick="openModal()"><img class="share" src="share.png"></button> 
          <div class="share-list" id="shareList"></div>
       </div>
+
+       <!-- Audio recordings list -->
+      <div class="audio-recordings">
+        <h3>Audio Recordings</h3>
+        <div class="recordings-list" id="recordingsList">
+          <!-- Recordings will be dynamically added here -->
+        </div>
+      </div>
+    </div>
+  </main>
       <!-- Overlay + Modal -->
 <div class="share-overlay" id="shareOverlay">
   <div class="share-popup">
@@ -104,6 +154,8 @@
     </div>
   </div>
 </div>
+
+
 
 <!-- Profile Modal -->
   <div class="profile-modal" id="profileModal">
@@ -176,5 +228,6 @@
   <script src = "profile.js"></script>
   <script src="notes.js"></script>
   <script src="share.js"></script>
+  <script src="color.js"></script>
 </body>
 </html>
