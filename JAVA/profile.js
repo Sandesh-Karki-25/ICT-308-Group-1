@@ -33,13 +33,16 @@
     }
     
     // Settings functions
-    function updateBodyFontSize(value) {
-      document.getElementById('bodySizeValue').textContent = value;
-      document.getElementById('bodySizeValueDisplay').textContent = value + 'px';
+    
+    
+ function updateBodyFontSize(size) {
+      document.getElementById('bodySizeValue').textContent = size;
+      document.getElementById('bodySizeValueDisplay').textContent = size + 'px';
+      document.getElementById('note-area').style.fontSize = size + 'px';
     }
     
-    function updateHeadingFontSize(value) {
-      document.getElementById('headingSizeValue').textContent = value;
-      document.getElementById('headingSizeValueDisplay').textContent = value + 'px';
+    function updateHeadingFontSize(size) {
+      document.getElementById('headingSizeValue').textContent = size;
+      document.getElementById('headingSizeValueDisplay').textContent = size + 'px';
+      document.querySelector('.note-title').style.fontSize = size + 'px';
     }
-    
