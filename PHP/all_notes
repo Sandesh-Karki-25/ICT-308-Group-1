@@ -1,0 +1,16 @@
+<?php
+session_start();
+include 'database.php';
+
+$user_id = $_SESSION['user_id'];
+$res = $conn->query("SELECT n.id, n.title, n.body, f.name AS folder_name 
+                     FROM notes n 
+                     JOIN folders f ON n.folder_id = f.id 
+                     WHERE n.user_id = $user_id 
+                     ORDER BY n.created_at DESC");
+$notes = [];
+while ($row = $res->fetch_assoc()) {
+    $notes[] = $row;
+}
+echo json_encode($notes);
+?>
